@@ -1,28 +1,35 @@
-name: Deploy with kustomize
+name: Deploy with Kustomize
+
 on:
   push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+    branches: [main]
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Set up Kubectl
-        uses: azure/setup-kubectl@v1
-      - name: Set up Kustomize
-        uses: imranismail/setup-kustomize@v1
-      # - name: Deploy to Kubernetes
-      #   run: |
-      #     kubectl apply -k ./overlays/prod/
-      - name: Dry-run Kustomize apply
-        run: kubectl apply -k ./overlays/prod/ --dry-run=client
-      - name: Apply Kustomize (skip validation)
-        run: kubectl apply -k ./overlays/prod/ --validate=false
+    - name: Checkout repo
+      uses: actions/checkout@v2
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+
+    - name: Update kubeconfig
+      run: aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name ${{ secrets.CLUSTER_NAME }}
+
+    - name: Set up Kustomize
+      uses: imranismail/setup-kustomize@v1
+
+    - name: Deploy with Kustomize
+      run: kubectl apply -k ./overlays/prod/
 
 
 
