@@ -16,13 +16,13 @@ jobs:
         uses: azure/setup-kubectl@v1
       - name: Set up Kustomize
         uses: imranismail/setup-kustomize@v1
-      - name: Apply Kustomize (skip validation)
-        run: kubectl apply -k ./overlays/prod/ --validate=false
       # - name: Deploy to Kubernetes
       #   run: |
       #     kubectl apply -k ./overlays/prod/
       - name: Dry-run Kustomize apply
         run: kubectl apply -k ./overlays/prod/ --dry-run=client
+      - name: Apply Kustomize (skip validation)
+        run: kubectl apply -k ./overlays/prod/ --validate=false
 
 
 
