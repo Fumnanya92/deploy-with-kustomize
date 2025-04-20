@@ -16,9 +16,12 @@ jobs:
         uses: azure/setup-kubectl@v1
       - name: Set up Kustomize
         uses: imranismail/setup-kustomize@v1
-      - name: Deploy to Kubernetes
-        run: |
-          kubectl apply -k ./overlays/prod/
+      # - name: Deploy to Kubernetes
+      #   run: |
+      #     kubectl apply -k ./overlays/prod/
+      - name: Dry-run Kustomize apply
+        run: kubectl apply -k ./overlays/prod/ --dry-run=client
+
 
 
 
