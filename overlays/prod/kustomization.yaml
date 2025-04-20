@@ -12,6 +12,6 @@ labels:
       namePrefix: prod
 
 images:
-  - name: fumnanya92/kustomizeadv-nginx
+  - name: kustomizeadv-nginx
     newName: fumnanya92/kustomizeadv-nginx
     newTag: latest
