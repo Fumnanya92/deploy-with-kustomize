@@ -46,5 +46,6 @@ jobs:
 
     - name: Deploy with Kustomize
       run: |
+        cd overlays/prod
         kustomize edit set image web=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
-        kubectl apply -k ./overlays/prod/
+        kubectl apply -k ./
