@@ -45,7 +45,7 @@ jobs:
       uses: imranismail/setup-kustomize@v1
 
     - name: Deploy with Kustomize
+    working-directory: overlays/prod
       run: |
-        cd overlays/prod
         kustomize edit set image web=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
         kubectl apply -k ./overlays/prod/
