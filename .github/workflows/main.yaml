@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]
 
+env:
+  ECR_REPOSITORY: nginx-image
+  IMAGE_TAG: ${{ github.sha }}
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -19,6 +23,18 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
 
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build and Push Docker image to ECR
+      run: |
+        IMAGE_URI=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+        echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
+
+        docker build -t $IMAGE_URI .
+        docker push $IMAGE_URI
+
     - name: Set up kubectl
       uses: azure/setup-kubectl@v3
 
@@ -29,9 +45,6 @@ jobs:
       uses: imranismail/setup-kustomize@v1
 
     - name: Deploy with Kustomize
-      run: kubectl apply -k ./overlays/prod/
-
-
-
-
-      
+      run: |
+        kustomize edit set image web=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+        kubectl apply -k ./overlays/prod/
